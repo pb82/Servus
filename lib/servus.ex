@@ -3,7 +3,7 @@ defmodule Servus do
   The `Servus` Game Server
   A simple, modular and universal game backend
   """
-  
+
   use Application
   require Logger
 
@@ -12,12 +12,12 @@ defmodule Servus do
     Handles the socket connection of a client (player). All messages are
     received via tcp and interpreted as JSON.
     """
-    
+
     def run(state) do
       case :gen_tcp.recv(state.socket, 0) do
         {:ok, message} ->
           data = Poison.decode message, as: Servus.Message
-          
+
           case data do
             {:ok, %{type: type, target: target, value: value}} ->
               # Call external module
@@ -35,14 +35,14 @@ defmodule Servus do
               run(state)
             {:ok, %{type: "join", value: name}} ->
               # The special `join` message
-              
+
               # Double join?
               if Map.has_key?(state, :player) do
                 Logger.error "A player already joined on this connection"
                 run(state)
               else
                 Logger.debug "#{name} has joined the queue"
-              
+
                 # Create a new player and add it to the queue
                 player = %{
                   name: name, 
@@ -57,7 +57,7 @@ defmodule Servus do
               end
             {:ok, %{type: type, value: value}} ->
               # Generic message from client (player)
-              
+
               # Check if the game state machine has already been started
               # by querying it's pid from the PidStore. This is only
               # required if it's not already stored in the process state
@@ -88,19 +88,19 @@ defmodule Servus do
             if pid != nil do
               # Notify the game logic about the player disconnect
               :gen_fsm.send_all_state_event(pid, {:abort, state.player})
-              
+
               # Remove the player from the registry
               PidStore.remove(state.player.id)
 
               Logger.debug "Removed player from pid store"
             end
           end
-        
+
           Logger.error "Unexpected clientside abort"
       end
     end
   end
-  
+
   defmodule SocketServer do
     @moduledoc """
     Manages the connections on a socket for a single game
@@ -114,12 +114,12 @@ defmodule Servus do
         active: false,
         reuseaddr: true
       ])
-      
+
       # Start the player queue (one per socket server)
       queue_pid = PlayerQueue.start_link players, logic
 
       Logger.debug "Accepting connections for #{logic} on port #{port}"
-      
+
       {:ok, spawn_link fn -> accept(socket, queue_pid) end}
     end
 
@@ -160,8 +160,8 @@ defmodule Servus do
     game backends accordingly.
     """
     
-    @backends Application.get_env(:base, :backends)
-    @modules  Application.get_env(:base, :modules)
+    @backends Application.get_env(:servus, :backends)
+    @modules  Application.get_env(:servus, :modules)
 
     def start_link do
       import Supervisor.Spec
@@ -177,9 +177,10 @@ defmodule Servus do
       # Create a list of all the backends that have to be
       # started
       backends = Enum.map(@backends, fn backend ->
-        port     = Application.get_env(backend, :port)
-        players  = Application.get_env(backend, :players_per_game)
-        logic    = Application.get_env(backend, :implementation)
+        backend = Application.get_env(:servus, backend)
+        port     = backend[:port]
+        players  = backend[:players_per_game]
+        logic    = backend[:implementation]
         
         supervisor(Servus.Backend.Supervisor, [port, players, logic], id: backend)
       end)
