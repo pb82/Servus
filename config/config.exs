@@ -1,7 +1,7 @@
 use Mix.Config
 
 # Base config
-config :servus
+config :servus,
   backends: [:connect_four],
   modules: [Echo]
 
