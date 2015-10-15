@@ -2,7 +2,7 @@ defmodule Serverutils do
   @on_load :seed
 
   defp now do
-    :erlang.now 
+    :os.timestamp
     |> Tuple.to_list 
     |> Enum.reduce 0, fn (x, acc) -> x + acc end
   end
