@@ -66,14 +66,14 @@ defmodule Fieldchecker do
   end
   def arrow_right(field) do
     [
-      [a0, a1, a2, a3, a4, a5, a6, a7],
-      [b0, b1, b2, b3, b4, b5, b6, b7],
-      [c0, c1, c2, c3, c4, c5, c6, c7],
+      [ _,  _,  _, a3, a4, a5, a6, a7],
+      [ _,  _, b2, b3, b4, b5, b6, b7],
+      [ _, c1, c2, c3, c4, c5, c6, c7],
       [d0, d1, d2, d3, d4, d5, d6, d7],
       [e0, e1, e2, e3, e4, e5, e6, e7],
-      [f0, f1, f2, f3, f4, f5, f6, f7],
-      [g0, g1, g2, g3, g4, g5, g6, g7],
-      [h0, h1, h2, h3, h4, h5, h6, h7]
+      [f0, f1, f2, f3, f4, f5, f6,  _],
+      [g0, g1, g2, g3, g4, g5,  _,  _],
+      [h0, h1, h2, h3, h4,  _,  _,  _]
     ] = field
 
     [
@@ -91,14 +91,14 @@ defmodule Fieldchecker do
 
   def arrow_left(field) do
     [
-      [a0, a1, a2, a3, a4, a5, a6, a7],
-      [b0, b1, b2, b3, b4, b5, b6, b7],
-      [c0, c1, c2, c3, c4, c5, c6, c7],
+      [a0, a1, a2, a3, a4,  _,  _,  _],
+      [b0, b1, b2, b3, b4, b5,  _,  _],
+      [c0, c1, c2, c3, c4, c5, c6,  _],
       [d0, d1, d2, d3, d4, d5, d6, d7],
       [e0, e1, e2, e3, e4, e5, e6, e7],
-      [f0, f1, f2, f3, f4, f5, f6, f7],
-      [g0, g1, g2, g3, g4, g5, g6, g7],
-      [h0, h1, h2, h3, h4, h5, h6, h7]
+      [ _, f1, f2, f3, f4, f5, f6, f7],
+      [ _,  _, g2, g3, g4, g5, g6, g7],
+      [ _,  _,  _, h3, h4, h5, h6, h7]
     ] = field
 
     [
