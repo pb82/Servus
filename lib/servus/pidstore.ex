@@ -1,4 +1,4 @@
-defmodule PidStore do
+defmodule Servus.PidStore do
   @moduledoc """
   Stores the currently running game logic pids per player.
   """
@@ -19,7 +19,7 @@ defmodule PidStore do
   end
 end
 
-defmodule ModuleStore do
+defmodule Servus.ModuleStore do
   @moduledoc """
   Stores the pids of running modules.
   """

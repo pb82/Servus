@@ -47,7 +47,7 @@ defmodule Servus.Module do
   defmacro register(name) do
     quote do
       def __register__ do
-        ModuleStore.register(unquote(name), self())
+        Servus.ModuleStore.register(unquote(name), self())
       end
     end
   end
