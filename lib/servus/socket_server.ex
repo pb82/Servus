@@ -5,11 +5,13 @@ defmodule SocketServer do
   """
 require Logger
 alias Servus.PlayerQueue
+alias Servus.Serverutils
+alias Servus.ClientHandler
 
   def start_link(port, players, logic) do
     {:ok, socket} = :gen_tcp.listen(port, [
-      :binary, 
-      packet: :line, 
+      :binary,
+      packet: :line,
       active: false,
       reuseaddr: true
     ])
