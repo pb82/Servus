@@ -29,4 +29,14 @@ defmodule Serverutils do
 
     :gen_tcp.send socket, json <> "\r\n"
   end
+
+  def call(target, type, value) do
+    pid = ModuleStore.get(target)
+    
+    if pid != nil and Process.alive?(pid) do
+      GenServer.call(pid, {:priv, type, value})
+    else
+      :error
+    end
+  end
 end
