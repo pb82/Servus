@@ -1,9 +1,9 @@
-defmodule Serverutils do
+defmodule Servus.Serverutils do
   @on_load :seed
 
   defp now do
-    :erlang.now 
-    |> Tuple.to_list 
+    :os.timestamp
+    |> Tuple.to_list
     |> Enum.reduce 0, fn (x, acc) -> x + acc end
   end
 
