@@ -1,6 +1,7 @@
-defmodule PlayerQueue do
-  use GenServer
-	require Logger
+defmodule Servus.PlayerQueue do
+use GenServer
+require Logger
+alias Servus.PidStore
 
   @doc """
   Start a new player queue for a backend of type `logic`
@@ -30,13 +31,13 @@ defmodule PlayerQueue do
     cond do
       state.size == length(state.queue) ->
         pid = state.logic.start state.queue
-        
+
         Enum.each(state.queue, fn player ->
           PidStore.put(player.id, pid)
         end)
 
         Logger.debug "Started a new #{state.logic} with #{state.size} players"
-        
+
         {:reply, :ok, %{state | :queue => []}}
       true ->
         {:reply, :ok, state}

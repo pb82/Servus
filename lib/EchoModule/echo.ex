@@ -9,7 +9,7 @@ defmodule Echo do
     [] # Return aodule state here
   end
 
-  handle "echo", args, _state do
+  handle "echo", args, state do
     Logger.debug "Echo module called"
     args
   end

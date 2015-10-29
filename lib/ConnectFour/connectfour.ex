@@ -2,6 +2,8 @@ defmodule ConnectFour do
   use Servus.Game
   require Logger
 
+  alias Servus.Serverutils
+
   def init(players) do
     Logger.debug "Initializing game state machine"
 
