@@ -5,7 +5,8 @@ defmodule Servus do
   """
   
   use Application
-  
+  require Logger
+
   # Entry point
   def start(_type, _args) do
     Servus.Supervisor.start_link

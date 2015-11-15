@@ -22,7 +22,7 @@ defmodule ConnectFour do
   decide what to do.
   """
   def abort(player, state) do
-    Logger.error "Player #{player.name} has aborted the game"
+    Logger.warn "Player #{player.name} has aborted the game"
     cond do
       player.id == state.player1.id ->
         Serverutils.send(state.player2.socket, "abort", state.player1.id)
@@ -40,7 +40,7 @@ defmodule ConnectFour do
   def p2({id, "put", slot}, state) do
     cond do
       id != state.player2.id ->
-        Logger.error "Not your turn"
+        Logger.warn "Not your turn"
         {:next_state, :p2, state}
       slot in 0..7 ->
         Gamefield.update_field(state.field, slot, :p2)
@@ -59,13 +59,13 @@ defmodule ConnectFour do
           {:next_state, :p1, state}
         end
       true ->
-        Logger.error "Invalid slot: #{slot}"
+        Logger.warn "Invalid slot: #{slot}"
         {:next_state, :p2, state}
     end
   end
 
   def p2({_, "restart", _}, state) do
-    Logger.error "Restart not allowed while game is ongoing"
+    Logger.warn "Restart not allowed while game is ongoing"
     {:next_state, :p2, state}
   end
 
@@ -76,7 +76,7 @@ defmodule ConnectFour do
   def p1({id, "put", slot}, state) do
     cond do
       id != state.player1.id ->
-        Logger.error "Not your turn"
+        Logger.warn "Not your turn"
         {:next_state, :p1, state}
       slot in 0..7 ->
         Gamefield.update_field(state.field, slot, :p1)
@@ -95,13 +95,13 @@ defmodule ConnectFour do
           {:next_state, :p2, state}
         end
       true ->
-        Logger.error "Invalid slot: #{slot}"
+        Logger.warn "Invalid slot: #{slot}"
         {:next_state, :p1, state}
     end
   end
 
   def p1({_, "restart", _}, state) do
-    Logger.error "Restart not allowed while game is ongoing"
+    Logger.warn "Restart not allowed while game is ongoing"
     {:next_state, :p2, state}
   end
 

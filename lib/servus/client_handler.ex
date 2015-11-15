@@ -20,7 +20,7 @@ defmodule Servus.ClientHandler do
 
             # Double join?
             if Map.has_key?(state, :player) do
-              Logger.error "A player already joined on this connection"
+              Logger.warn "A player already joined on this connection"
               run(state)
             else
               Logger.debug "#{name} has joined the queue"
@@ -75,7 +75,7 @@ defmodule Servus.ClientHandler do
 
             run(state)
           _ ->
-            Logger.error "Invalid message format: #{message}"
+            Logger.warn "Invalid message format: #{message}"
             run(state)
         end
       {:error, _} ->
@@ -94,7 +94,7 @@ defmodule Servus.ClientHandler do
           end
         end
 
-        Logger.error "Unexpected clientside abort"
+        Logger.warn "Unexpected clientside abort"
     end
   end
 end
