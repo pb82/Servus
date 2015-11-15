@@ -29,7 +29,7 @@ defmodule Servus.Mixfile do
   # Type `mix help deps` for more examples and options
   defp deps do
     [
-      {:poison, "~> 1.3.0"}
+      {:poison, "~> 1.5.0"}
     ]
   end
 end
