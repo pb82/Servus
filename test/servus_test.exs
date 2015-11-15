@@ -10,7 +10,7 @@ defmodule ServusTest do
     ]}
   end
 
-  test "server allows players to connect", context do
+  test "integration test (gameplay simulation with two players)", context do
     # Alice joins the game by sending the 'join'
     # message
     assert :ok == :gen_tcp.send(context.alice, """
@@ -42,8 +42,87 @@ defmodule ServusTest do
     assert set == {:ok, '{"value":2,"type":"set"}\r\n'}
 
     # Now it's alice's turn. She receives her 'turn'
-    # message
+    # message...
     turn = :gen_tcp.recv(context.alice, 0, 1000)
     assert turn == {:ok, '{"value":null,"type":"turn"}\r\n'}
+
+    # ...and  throws in another coid
+    assert :ok == :gen_tcp.send(context.alice, """
+    {"type": "put", "value": 4}
+    """)
+
+    set = :gen_tcp.recv(context.bob, 26, 1000)
+    assert set == {:ok, '{"value":4,"type":"set"}\r\n'}
+
+    turn = :gen_tcp.recv(context.bob, 0, 1000)
+    assert turn == {:ok, '{"value":null,"type":"turn"}\r\n'}
+
+    # Bob's turn
+    assert :ok == :gen_tcp.send(context.bob, """
+    {"type": "put", "value": 3}
+    """)
+
+    set = :gen_tcp.recv(context.alice, 26, 1000)
+    assert set == {:ok, '{"value":3,"type":"set"}\r\n'}
+
+    turn = :gen_tcp.recv(context.alice, 0, 1000)
+    assert turn == {:ok, '{"value":null,"type":"turn"}\r\n'}
+
+    # Alice's turn
+    assert :ok == :gen_tcp.send(context.alice, """
+    {"type": "put", "value": 4}
+    """)
+
+    set = :gen_tcp.recv(context.bob, 26, 1000)
+    assert set == {:ok, '{"value":4,"type":"set"}\r\n'}
+
+    turn = :gen_tcp.recv(context.bob, 0, 1000)
+    assert turn == {:ok, '{"value":null,"type":"turn"}\r\n'}
+
+    # Bob's turn
+    assert :ok == :gen_tcp.send(context.bob, """
+    {"type": "put", "value": 7}
+    """)
+
+    set = :gen_tcp.recv(context.alice, 26, 1000)
+    assert set == {:ok, '{"value":7,"type":"set"}\r\n'}
+
+    turn = :gen_tcp.recv(context.alice, 0, 1000)
+    assert turn == {:ok, '{"value":null,"type":"turn"}\r\n'}
+
+    # Alice's turn
+    assert :ok == :gen_tcp.send(context.alice, """
+    {"type": "put", "value": 4}
+    """)
+
+    set = :gen_tcp.recv(context.bob, 26, 1000)
+    assert set == {:ok, '{"value":4,"type":"set"}\r\n'}
+
+    turn = :gen_tcp.recv(context.bob, 0, 1000)
+    assert turn == {:ok, '{"value":null,"type":"turn"}\r\n'}
+
+    # Bob's turn
+    assert :ok == :gen_tcp.send(context.bob, """
+    {"type": "put", "value": 3}
+    """)
+
+    set = :gen_tcp.recv(context.alice, 26, 1000)
+    assert set == {:ok, '{"value":3,"type":"set"}\r\n'}
+
+    turn = :gen_tcp.recv(context.alice, 0, 1000)
+    assert turn == {:ok, '{"value":null,"type":"turn"}\r\n'}
+
+    # Alice's turn
+    assert :ok == :gen_tcp.send(context.alice, """
+    {"type": "put", "value": 4}
+    """)
+
+    # Alice wins this game
+    turn = :gen_tcp.recv(context.alice, 0, 1000)
+    assert turn == {:ok, '{"value":null,"type":"win"}\r\n'}
+
+    # Bob looses this game
+    turn = :gen_tcp.recv(context.bob, 0, 1000)
+    assert turn == {:ok, '{"value":null,"type":"loose"}\r\n'}
   end
 end
