@@ -1,15 +1,8 @@
 defmodule Servus.Serverutils do
-  @on_load :seed
-
   defp now do
     :os.timestamp
     |> Tuple.to_list
     |> Enum.reduce 0, fn (x, acc) -> x + acc end
-  end
-
-  def seed do
-    :crypto.rand_seed <<now>>
-    :ok
   end
 
   def get_unique_id do

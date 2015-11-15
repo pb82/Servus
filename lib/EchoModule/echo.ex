@@ -5,7 +5,7 @@ defmodule Echo do
   register "echo"
 
   def startup do
-    Logger.debug "Echo module registered"
+    Logger.info "Echo module registered"
     [] # Return aodule state here
   end
 
