@@ -36,7 +36,7 @@ alias Servus.PidStore
           PidStore.put(player.id, pid)
         end)
 
-        Logger.debug "Started a new #{state.logic} with #{state.size} players"
+        Logger.info "Started a new #{state.logic} with #{state.size} players"
 
         {:reply, :ok, %{state | :queue => []}}
       true ->

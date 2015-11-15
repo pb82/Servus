@@ -23,7 +23,7 @@ defmodule Servus.ClientHandler do
               Logger.warn "A player already joined on this connection"
               run(state)
             else
-              Logger.debug "#{name} has joined the queue"
+              Logger.info "#{name} has joined the queue"
 
               # Create a new player and add it to the queue
               player = %{
@@ -90,7 +90,7 @@ defmodule Servus.ClientHandler do
             # Remove the player from the registry
             PidStore.remove(state.player.id)
 
-            Logger.debug "Removed player from pid store"
+            Logger.info "Removed player from pid store"
           end
         end
 

@@ -10,7 +10,7 @@ defmodule Echo do
   end
 
   handle "echo", args, state do
-    Logger.debug "Echo module called"
+    Logger.info "Echo module called"
     args
   end
 end
