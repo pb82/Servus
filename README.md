@@ -39,18 +39,34 @@ algorithm at all. Only the order in which the players join determines the oppone
 ### Configuration
 
 The config file is `config/config.exs`. There are two sections: basic configuration and game specific configuration. In the base config
-you define which game modules and server plugins to start. The game specific configuration always consists of:
+you define which game modules and server plugins to start.
+
+#### Base configuration (using the included examples)
 
 ```elixir
-config :game_name, 
-  port: 3334,
-  players_per_game: 2,
-  implementation: GameImpl
+config :servus, 
+  # Start the `connect_four` backend
+  backends: [:connect_four],
+
+  # Start the Echo module (accessible to all backends)
+  modules: [Echo]
+```
+
+#### Game specific configuration
+
+```elixir
+config :servus,
+  # Configuration for the `connect_four` backend
+  connect_four: %{
+    port: 3334,
+    players_per_game: 2,
+    implementation: ConnectFour
+  }
 ```
 
 The `implementation` is expected to be a `gen_fsm` statemachine that uses `Servus.Game`. You should override the `init/1` function and return
 the initial state and the data that will be passed to the fsm actions. For further information you can have a look at the example game under
-lib/ConnectFour
+lib/connect_four
 
 ### Server plugins (or modules)
 
@@ -61,10 +77,13 @@ definition. There are two overridables: `startup/0` and `shutdown/1`. `startup/0
 To handle messages to the plugin you use the `handle` macros. In it's simplest form it looks like
 
 ```elixir
-handle "echo", args, _state do
+handle "echo", args, state do
   Logger.debug "Echo module called"
   args
 end
 ```
 
-This will simply echo all input. Have a look at the example plugin under lib/EchoMoule.
+There's also a `handlep` macro. Use this if you don't want the module to be callable via network. `handlep` handlers can only be called from within
+the server (usually from a game backend).
+
+This will simply echo all input. Have a look at the example plugin under lib/echo_module.
