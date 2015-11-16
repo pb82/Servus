@@ -10,8 +10,9 @@ This is the result of a two day game-jam with two colleagues and should definite
 
 1. Clone this repository
 2. Get all dependencies with `mix deps.get`
-3. Compile dependencies with `mix deps.compile`
+3. Run the tests with `mix test`
 4. Start a server session with `iex -S mix`
+5. Or create a release with `MIX_ENV=prod mix release`
 
 ### Usage
 
