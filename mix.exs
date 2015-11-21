@@ -4,7 +4,7 @@ defmodule Servus.Mixfile do
   def project do
     [app: :servus,
      version: "0.0.1",
-     elixir: "~> 1.0",
+     elixir: "~> 1.1",
      deps: deps]
   end
 
@@ -13,7 +13,7 @@ defmodule Servus.Mixfile do
   # Type `mix help compile.app` for more information
   def application do
     [
-      applications: [:logger],
+      applications: [:crypto, :logger],
       mod: {Servus, []}
     ]
   end
