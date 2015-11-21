@@ -1,4 +1,4 @@
-## Servus
+## Servus [![Build Status](https://travis-ci.org/pb82/Servus.png?branch=master)](https://travis-ci.org/pb82/Servus)
 
 A simple, modular backend for multiplayer games. Simple, because it just handles the (socket) communication between a number
 of players and provides hooks for the game logic. Modular, because game logic is written as a state machine and loaded into
