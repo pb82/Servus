@@ -12,6 +12,8 @@ defmodule ConnectFour do
 
     fsm_state = %{player1: player1, player2: player2, field: field_pid}
 
+    Serverutils.send(player1.socket, "start", player2.name)
+    Serverutils.send(player2.socket, "start", player1.name)
     Serverutils.send(player2.socket, "turn", nil)
     {:ok, :p2, fsm_state}
   end
@@ -38,6 +40,7 @@ defmodule ConnectFour do
   Outcome: p1 state
   """
   def p2({id, "put", slot}, state) do
+     {slot, _} = Integer.parse slot
     cond do
       id != state.player2.id ->
         Logger.warn "Not your turn"
@@ -53,7 +56,7 @@ defmodule ConnectFour do
           Logger.debug "Player 2 puts coin in slot #{slot}"
           # Notify the other player about the put...
           Serverutils.send(state.player1.socket, "set", slot)
-
+          
           # ...and give him the next turn.
           Serverutils.send(state.player1.socket, "turn", nil)
           {:next_state, :p1, state}
@@ -74,6 +77,7 @@ defmodule ConnectFour do
   Outcome: p2 state
   """
   def p1({id, "put", slot}, state) do
+     {slot, _} = Integer.parse slot
     cond do
       id != state.player1.id ->
         Logger.warn "Not your turn"
