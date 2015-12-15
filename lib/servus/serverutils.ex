@@ -20,7 +20,22 @@ defmodule Servus.Serverutils do
       value: value
     }
 
-    :gen_tcp.send socket, json <> "\r\n"
+    :gen_tcp.send socket, json
+  end
+
+  def recv(socket, opts \\ [parse: false, timeout: :infinity]) do
+    result = :gen_tcp.recv(socket, 0, opts[:timeout])
+    case result do
+      {:ok, data} ->
+        if opts[:parse] do
+          {:ok, msg} = Poison.decode data, as: Servus.Message
+          msg
+        else
+          result
+        end
+      _ ->
+        result
+    end
   end
 
   def call(target, type, value) do

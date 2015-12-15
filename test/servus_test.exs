@@ -1,9 +1,18 @@
 defmodule ServusTest do
   use ExUnit.Case
+  alias Servus.Serverutils
+  alias Servus.Message
 
   setup_all do
-    {:ok, socket_alice} = :gen_tcp.connect('localhost', 3334, active: false)
-    {:ok, socket_bob} = :gen_tcp.connect('localhost', 3334, active: false)
+    connect_opts = [
+      :binary,
+      packet: 4,
+      active: false,
+      reuseaddr: true
+    ]
+
+    {:ok, socket_alice} = :gen_tcp.connect('localhost', 3334, connect_opts)
+    {:ok, socket_bob} = :gen_tcp.connect('localhost', 3334, connect_opts)
     {:ok, [
       alice: socket_alice,
       bob: socket_bob
@@ -13,116 +22,131 @@ defmodule ServusTest do
   test "integration test (gameplay simulation with two players)", context do
     # Alice joins the game by sending the 'join'
     # message
-    assert :ok == :gen_tcp.send(context.alice, """
-    {"type": "join", "value": "alice"}
-    """)
-   
-    # Make sure that bob's message will be second
+    assert :ok == Serverutils.send(context.alice, "join", "alice")
+
+    # Make sure that Bob's message will be second
     :timer.sleep(100)
 
-    # Bob joins the game by sending the 'join' message    
-    assert :ok == :gen_tcp.send(context.bob, """
-    {"type": "join", "value": "bob"}
-    """)
+    # Bob joins the game by sending a `join`message
+    assert :ok == Serverutils.send(context.bob, "join", "bob")
 
-    # Since bob is second to join he will have the first
-    # turn. He should receive a 'turn' message.
-    turn = :gen_tcp.recv(context.bob, 0, 1000)
-    assert turn == {:ok, '{"value":null,"type":"turn"}\r\n'}
+    assert(
+      %Message{type: "start", value: "bob", target: nil} == 
+      Serverutils.recv(context.alice, parse: true, timeout: 100)
+    )
 
-    # After that bob puts a coin in a slot by sending a
-    # 'put' message
-    assert :ok == :gen_tcp.send(context.bob, """
-    {"type": "put", "value": 2}
-    """)
+    assert(
+      %Message{type: "start", value: "alice", target: nil} == 
+      Serverutils.recv(context.bob, parse: true, timeout: 100)
+    )
+
+    assert(
+      %Message{type: "turn", value: nil, target: nil} == 
+      Serverutils.recv(context.bob, parse: true, timeout: 100)
+    )
+
+    # Bob turn
+    assert :ok == Serverutils.send(context.bob, "put", 2)
+
+    assert(
+      %Message{type: "set", value: 2, target: nil} == 
+      Serverutils.recv(context.alice, parse: true, timeout: 100)
+    )
+
+    assert(
+      %Message{type: "turn", value: nil, target: nil} == 
+      Serverutils.recv(context.alice, parse: true, timeout: 100)
+    )
+
+    # Alice turn
+    assert :ok == Serverutils.send(context.alice, "put", 4)
+
+    assert(
+      %Message{type: "set", value: 4, target: nil} == 
+      Serverutils.recv(context.bob, parse: true, timeout: 100)
+    )
+
+    assert(
+      %Message{type: "turn", value: nil, target: nil} == 
+      Serverutils.recv(context.bob, parse: true, timeout: 100)
+    )
+
+    # Bob turn
+    assert :ok == Serverutils.send(context.bob, "put", 3)
+
+    assert(
+      %Message{type: "set", value: 3, target: nil} == 
+      Serverutils.recv(context.alice, parse: true, timeout: 100)
+    )
+
+    assert(
+      %Message{type: "turn", value: nil, target: nil} == 
+      Serverutils.recv(context.alice, parse: true, timeout: 100)
+    )
     
-    # Alice will be informed about bob's put through
-    # a 'set' message
-    set = :gen_tcp.recv(context.alice, 26, 1000)
-    assert set == {:ok, '{"value":2,"type":"set"}\r\n'}
+    # Alice turn
+    assert :ok == Serverutils.send(context.alice, "put", 4)
 
-    # Now it's alice's turn. She receives her 'turn'
-    # message...
-    turn = :gen_tcp.recv(context.alice, 0, 1000)
-    assert turn == {:ok, '{"value":null,"type":"turn"}\r\n'}
+    assert(
+      %Message{type: "set", value: 4, target: nil} == 
+      Serverutils.recv(context.bob, parse: true, timeout: 100)
+    )
 
-    # ...and  throws in another coid
-    assert :ok == :gen_tcp.send(context.alice, """
-    {"type": "put", "value": 4}
-    """)
+    assert(
+      %Message{type: "turn", value: nil, target: nil} == 
+      Serverutils.recv(context.bob, parse: true, timeout: 100)
+    )
 
-    set = :gen_tcp.recv(context.bob, 26, 1000)
-    assert set == {:ok, '{"value":4,"type":"set"}\r\n'}
+    # Bob turn
+    assert :ok == Serverutils.send(context.bob, "put", 3)
 
-    turn = :gen_tcp.recv(context.bob, 0, 1000)
-    assert turn == {:ok, '{"value":null,"type":"turn"}\r\n'}
+    assert(
+      %Message{type: "set", value: 3, target: nil} == 
+      Serverutils.recv(context.alice, parse: true, timeout: 100)
+    )
 
-    # Bob's turn
-    assert :ok == :gen_tcp.send(context.bob, """
-    {"type": "put", "value": 3}
-    """)
+    assert(
+      %Message{type: "turn", value: nil, target: nil} == 
+      Serverutils.recv(context.alice, parse: true, timeout: 100)
+    )
 
-    set = :gen_tcp.recv(context.alice, 26, 1000)
-    assert set == {:ok, '{"value":3,"type":"set"}\r\n'}
+    # Alice turn
+    assert :ok == Serverutils.send(context.alice, "put", 4)
 
-    turn = :gen_tcp.recv(context.alice, 0, 1000)
-    assert turn == {:ok, '{"value":null,"type":"turn"}\r\n'}
+    assert(
+      %Message{type: "set", value: 4, target: nil} == 
+      Serverutils.recv(context.bob, parse: true, timeout: 100)
+    )
 
-    # Alice's turn
-    assert :ok == :gen_tcp.send(context.alice, """
-    {"type": "put", "value": 4}
-    """)
+    assert(
+      %Message{type: "turn", value: nil, target: nil} == 
+      Serverutils.recv(context.bob, parse: true, timeout: 100)
+    )
 
-    set = :gen_tcp.recv(context.bob, 26, 1000)
-    assert set == {:ok, '{"value":4,"type":"set"}\r\n'}
+    # Bob turn
+    assert :ok == Serverutils.send(context.bob, "put", 3)
 
-    turn = :gen_tcp.recv(context.bob, 0, 1000)
-    assert turn == {:ok, '{"value":null,"type":"turn"}\r\n'}
+    assert(
+      %Message{type: "set", value: 3, target: nil} == 
+      Serverutils.recv(context.alice, parse: true, timeout: 100)
+    )
 
-    # Bob's turn
-    assert :ok == :gen_tcp.send(context.bob, """
-    {"type": "put", "value": 7}
-    """)
+    assert(
+      %Message{type: "turn", value: nil, target: nil} == 
+      Serverutils.recv(context.alice, parse: true, timeout: 100)
+    )
 
-    set = :gen_tcp.recv(context.alice, 26, 1000)
-    assert set == {:ok, '{"value":7,"type":"set"}\r\n'}
+    # Alice turn
+    assert :ok == Serverutils.send(context.alice, "put", 4)
 
-    turn = :gen_tcp.recv(context.alice, 0, 1000)
-    assert turn == {:ok, '{"value":null,"type":"turn"}\r\n'}
+    assert(
+      %Message{type: "win", value: nil, target: nil} == 
+      Serverutils.recv(context.alice, parse: true, timeout: 100)
+    )
 
-    # Alice's turn
-    assert :ok == :gen_tcp.send(context.alice, """
-    {"type": "put", "value": 4}
-    """)
-
-    set = :gen_tcp.recv(context.bob, 26, 1000)
-    assert set == {:ok, '{"value":4,"type":"set"}\r\n'}
-
-    turn = :gen_tcp.recv(context.bob, 0, 1000)
-    assert turn == {:ok, '{"value":null,"type":"turn"}\r\n'}
-
-    # Bob's turn
-    assert :ok == :gen_tcp.send(context.bob, """
-    {"type": "put", "value": 3}
-    """)
-
-    set = :gen_tcp.recv(context.alice, 26, 1000)
-    assert set == {:ok, '{"value":3,"type":"set"}\r\n'}
-
-    turn = :gen_tcp.recv(context.alice, 0, 1000)
-    assert turn == {:ok, '{"value":null,"type":"turn"}\r\n'}
-
-    # Alice's turn
-    assert :ok == :gen_tcp.send(context.alice, """
-    {"type": "put", "value": 4}
-    """)
-
-    # Alice wins this game
-    turn = :gen_tcp.recv(context.alice, 0, 1000)
-    assert turn == {:ok, '{"value":null,"type":"win"}\r\n'}
-
-    # Bob looses this game
-    turn = :gen_tcp.recv(context.bob, 0, 1000)
-    assert turn == {:ok, '{"value":null,"type":"loose"}\r\n'}
+    assert(
+      %Message{type: "loose", value: nil, target: nil} == 
+      Serverutils.recv(context.bob, parse: true, timeout: 100)
+    )
   end
 end

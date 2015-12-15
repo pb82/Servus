@@ -7,10 +7,11 @@ defmodule Servus.ClientHandler do
   alias Servus.ModuleStore
   alias Servus.Serverutils
   alias Servus.PlayerQueue
+  alias Servus.Serverutils
   require Logger
 
   def run(state) do
-    case :gen_tcp.recv(state.socket, 0) do
+    case Serverutils.recv(state.socket) do
       {:ok, message} ->
         data = Poison.decode message, as: Servus.Message
         
@@ -78,7 +79,7 @@ defmodule Servus.ClientHandler do
             Logger.warn "Invalid message format: #{message}"
             run(state)
         end
-      {:error, _} ->
+      {:error, err} ->
         # Client has aborted the connection
         # De-register it's ID from the pid store
         if Map.has_key?(state, :player) do

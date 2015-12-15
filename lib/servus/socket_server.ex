@@ -3,15 +3,16 @@ defmodule SocketServer do
   Manages the connections on a socket for a single game
   backend. Each game backend has it's own SocketServer
   """
-require Logger
-alias Servus.PlayerQueue
-alias Servus.Serverutils
-alias Servus.ClientHandler
+  
+  require Logger
+  alias Servus.PlayerQueue
+  alias Servus.Serverutils
+  alias Servus.ClientHandler
 
   def start_link(port, players, logic) do
     {:ok, socket} = :gen_tcp.listen(port, [
       :binary,
-      packet: :line,
+      packet: 4,
       active: false,
       reuseaddr: true
     ])
