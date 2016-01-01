@@ -30,6 +30,7 @@ defmodule Servus.Mixfile do
   defp deps do
     [
       {:poison, "~> 1.5.0"},
+      {:socket, "~> 0.3.0"},
       {:exrm, "~> 0.19.0"}
     ]
   end

@@ -25,8 +25,9 @@ defmodule Servus.Supervisor do
       port     = backend[:port]
       players  = backend[:players_per_game]
       logic    = backend[:implementation]
+      type     = backend[:type]
 
-      supervisor(Servus.Backend.Supervisor, [port, players, logic], id: backend)
+      supervisor(Servus.Backend.Supervisor, [port, players, logic, type], id: backend)
     end)
 
     # Create a list of all the modules that have to be

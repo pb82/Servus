@@ -1,37 +1,33 @@
-defmodule SocketServer do
+defmodule WebSocketServer do
   @moduledoc """
-  Manages the connections on a socket for a single game
-  backend. Each game backend has it's own SocketServer
+  Same as socket_server but fur web- instead of tcp sockets.
   """
   
   require Logger
   alias Servus.PlayerQueue
-  alias Servus.Serverutils
   alias Servus.ClientHandler
+  alias Servus.Serverutils
 
   def start_link(port, players, logic) do
-    {:ok, socket} = :gen_tcp.listen(port, [
-      :binary,
-      packet: 4,
-      active: false,
-      reuseaddr: true
-    ])
- 
+    socket = Socket.Web.listen! port
+
     # Start the player queue (one per socket server)
     queue_pid = PlayerQueue.start_link players, logic
 
-    Logger.info "Accepting tcp connections for #{logic} on port #{port}"
+    Logger.info "Accepting websocket connections for #{logic} on port #{port}"
 
     {:ok, spawn_link fn -> accept(socket, queue_pid) end}
   end
 
   def accept(socket, queue_pid) do
-    {:ok, client} = :gen_tcp.accept(socket)
-    Logger.info "Incomming TCP connection from #{Serverutils.get_address(client)}"
+    client = Socket.Web.accept! socket
+    Socket.Web.accept! client
+
+    Logger.info "Incomming WebSocket connection from #{Serverutils.get_address(client)}"
 
     # Start a new client listener thread for the incoming connection
     Task.Supervisor.start_child(:client_handler, ClientHandler, :run, [
-      %{socket: %{raw: client, type: :tcp}, queue: queue_pid}
+      %{socket: %{raw: client, type: :web}, queue: queue_pid}
     ])
 
     # Wait for the next connection

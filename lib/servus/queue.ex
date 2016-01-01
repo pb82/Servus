@@ -43,4 +43,28 @@ alias Servus.PidStore
         {:reply, :ok, state}
     end
   end
+
+  @doc """
+  Remove a player from the queue (by it's pid). This function is called when
+  a player that is still in the queue (and thus not in a game) aborts the
+  connection. If we would not remove him at this point he would count as a
+  valid opponent.
+  """
+  def remove(pid, player) do
+    GenServer.call(pid, {:remove, player})
+  end
+
+  def handle_call({:remove, player}, _, state) do
+    queue = Enum.reduce(state.queue, [], fn(candidate, acc) ->
+      if candidate.id == player.id do
+        acc
+      else
+        [candidate | acc]
+      end
+    end)
+
+    state = %{state | :queue => queue}
+
+    {:reply, :ok, state}
+  end
 end

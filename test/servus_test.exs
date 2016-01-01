@@ -14,8 +14,8 @@ defmodule ServusTest do
     {:ok, socket_alice} = :gen_tcp.connect('localhost', 3334, connect_opts)
     {:ok, socket_bob} = :gen_tcp.connect('localhost', 3334, connect_opts)
     {:ok, [
-      alice: socket_alice,
-      bob: socket_bob
+      alice: %{raw: socket_alice, type: :tcp},
+      bob: %{raw: socket_bob, type: :tcp}
     ]}
   end
 
