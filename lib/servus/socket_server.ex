@@ -5,11 +5,10 @@ defmodule SocketServer do
   """
   
   require Logger
-  alias Servus.PlayerQueue
   alias Servus.Serverutils
   alias Servus.ClientHandler
 
-  def start_link(port, players, logic) do
+  def start_link(port, queue_pid) do
     {:ok, socket} = :gen_tcp.listen(port, [
       :binary,
       packet: 4,
@@ -17,10 +16,7 @@ defmodule SocketServer do
       reuseaddr: true
     ])
  
-    # Start the player queue (one per socket server)
-    queue_pid = PlayerQueue.start_link players, logic
-
-    Logger.info "Accepting tcp connections for #{logic} on port #{port}"
+    Logger.info "Accepting tcp connections on port #{port}"
 
     {:ok, spawn_link fn -> accept(socket, queue_pid) end}
   end

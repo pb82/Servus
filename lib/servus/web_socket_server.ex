@@ -4,17 +4,13 @@ defmodule WebSocketServer do
   """
   
   require Logger
-  alias Servus.PlayerQueue
   alias Servus.ClientHandler
   alias Servus.Serverutils
 
-  def start_link(port, players, logic) do
+  def start_link(port, queue_pid) do
     socket = Socket.Web.listen! port
 
-    # Start the player queue (one per socket server)
-    queue_pid = PlayerQueue.start_link players, logic
-
-    Logger.info "Accepting websocket connections for #{logic} on port #{port}"
+    Logger.info "Accepting websocket connections on port #{port}"
 
     {:ok, spawn_link fn -> accept(socket, queue_pid) end}
   end

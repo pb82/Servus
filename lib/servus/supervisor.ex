@@ -9,6 +9,7 @@ defmodule Servus.Supervisor do
 
   def start_link do
     import Supervisor.Spec
+    alias Servus.PlayerQueue
 
     # Common services used by all backends
     children = [
@@ -22,12 +23,14 @@ defmodule Servus.Supervisor do
     # started
     backends = Enum.map(@backends, fn backend ->
       backend = Application.get_env(:servus, backend)
-      port     = backend[:port]
       players  = backend[:players_per_game]
       logic    = backend[:implementation]
-      type     = backend[:type]
+      adapters = backend[:adapters]
 
-      supervisor(Servus.Backend.Supervisor, [port, players, logic, type], id: backend)
+      # Already create the player queue for the backend
+      queue_pid = PlayerQueue.start_link players, logic
+
+      supervisor(Servus.Backend.Supervisor, [adapters, queue_pid], id: backend)
     end)
 
     # Create a list of all the modules that have to be

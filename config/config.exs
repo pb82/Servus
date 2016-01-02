@@ -2,22 +2,16 @@ use Mix.Config
 
 # Base config
 config :servus,
-  backends: [:connect_four, :connect_four_web],
+  backends: [:connect_four],
   modules: [Echo]
 
 # Configuration for a connect-four game
 config :servus,
 connect_four: %{
-  port: 3334,
-  type: :tcp,
-  players_per_game: 2, 
-  implementation: ConnectFour
-}
-
-config :servus,
-connect_four_web: %{
-  port: 3335,
-  type: :web,
+  adapters: [
+    tcp: 3334,
+    web: 3335
+  ],
   players_per_game: 2, 
   implementation: ConnectFour
 }
