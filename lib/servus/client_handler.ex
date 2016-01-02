@@ -14,7 +14,6 @@ defmodule Servus.ClientHandler do
     case Serverutils.recv(state.socket) do
       {:ok, message} ->
         data = Poison.decode message, as: Servus.Message
-        
         case data do
           {:ok, %{type: "join", value: name}} ->
             # The special `join` message
@@ -83,6 +82,9 @@ defmodule Servus.ClientHandler do
         # Client has aborted the connection
         # De-register it's ID from the pid store
         if Map.has_key?(state, :player) do
+          # Remove him from the queue in case he's still there
+          PlayerQueue.remove(state.queue, state.player)
+
           pid = PidStore.get(state.player.id)
           if pid != nil do
             # Notify the game logic about the player disconnect
