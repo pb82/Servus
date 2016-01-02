@@ -1,25 +1,20 @@
-defmodule ServusTest do
+defmodule ServusWSTest do
   use ExUnit.Case
   alias Servus.Serverutils
   alias Servus.Message
+  alias Socket.Web
 
   setup_all do
-    connect_opts = [
-      :binary,
-      packet: 4,
-      active: false,
-      reuseaddr: true
-    ]
+    socket_alice = Web.connect! "localhost", 3335
+    socket_bob = Web.connect! "localhost", 3335
 
-    {:ok, socket_alice} = :gen_tcp.connect('localhost', 3334, connect_opts)
-    {:ok, socket_bob} = :gen_tcp.connect('localhost', 3334, connect_opts)
     {:ok, [
-      alice: %{raw: socket_alice, type: :tcp},
-      bob: %{raw: socket_bob, type: :tcp}
+      alice: %{raw: socket_alice, type: :web},
+      bob: %{raw: socket_bob, type: :web}
     ]}
   end
 
-  test "integration test (TCP)", context do
+  test "integration test (WebSocket)", context do
     # Alice joins the game by sending the 'join'
     # message
     assert :ok == Serverutils.send(context.alice, "join", "alice")
@@ -32,17 +27,17 @@ defmodule ServusTest do
 
     assert(
       %Message{type: "start", value: "bob", target: nil} == 
-      Serverutils.recv(context.alice, parse: true, timeout: 100)
+      Serverutils.recv(context.alice, parse: true)
     )
 
     assert(
       %Message{type: "start", value: "alice", target: nil} == 
-      Serverutils.recv(context.bob, parse: true, timeout: 100)
+      Serverutils.recv(context.bob, parse: true)
     )
 
     assert(
       %Message{type: "turn", value: nil, target: nil} == 
-      Serverutils.recv(context.bob, parse: true, timeout: 100)
+      Serverutils.recv(context.bob, parse: true)
     )
 
     # Bob turn
@@ -50,12 +45,12 @@ defmodule ServusTest do
 
     assert(
       %Message{type: "set", value: 2, target: nil} == 
-      Serverutils.recv(context.alice, parse: true, timeout: 100)
+      Serverutils.recv(context.alice, parse: true)
     )
 
     assert(
       %Message{type: "turn", value: nil, target: nil} == 
-      Serverutils.recv(context.alice, parse: true, timeout: 100)
+      Serverutils.recv(context.alice, parse: true)
     )
 
     # Alice turn
@@ -63,12 +58,12 @@ defmodule ServusTest do
 
     assert(
       %Message{type: "set", value: 4, target: nil} == 
-      Serverutils.recv(context.bob, parse: true, timeout: 100)
+      Serverutils.recv(context.bob, parse: true)
     )
 
     assert(
       %Message{type: "turn", value: nil, target: nil} == 
-      Serverutils.recv(context.bob, parse: true, timeout: 100)
+      Serverutils.recv(context.bob, parse: true)
     )
 
     # Bob turn
@@ -76,12 +71,12 @@ defmodule ServusTest do
 
     assert(
       %Message{type: "set", value: 3, target: nil} == 
-      Serverutils.recv(context.alice, parse: true, timeout: 100)
+      Serverutils.recv(context.alice, parse: true)
     )
 
     assert(
       %Message{type: "turn", value: nil, target: nil} == 
-      Serverutils.recv(context.alice, parse: true, timeout: 100)
+      Serverutils.recv(context.alice, parse: true)
     )
     
     # Alice turn
@@ -89,12 +84,12 @@ defmodule ServusTest do
 
     assert(
       %Message{type: "set", value: 4, target: nil} == 
-      Serverutils.recv(context.bob, parse: true, timeout: 100)
+      Serverutils.recv(context.bob, parse: true)
     )
 
     assert(
       %Message{type: "turn", value: nil, target: nil} == 
-      Serverutils.recv(context.bob, parse: true, timeout: 100)
+      Serverutils.recv(context.bob, parse: true)
     )
 
     # Bob turn
@@ -102,12 +97,12 @@ defmodule ServusTest do
 
     assert(
       %Message{type: "set", value: 3, target: nil} == 
-      Serverutils.recv(context.alice, parse: true, timeout: 100)
+      Serverutils.recv(context.alice, parse: true)
     )
 
     assert(
       %Message{type: "turn", value: nil, target: nil} == 
-      Serverutils.recv(context.alice, parse: true, timeout: 100)
+      Serverutils.recv(context.alice, parse: true)
     )
 
     # Alice turn
@@ -115,12 +110,12 @@ defmodule ServusTest do
 
     assert(
       %Message{type: "set", value: 4, target: nil} == 
-      Serverutils.recv(context.bob, parse: true, timeout: 100)
+      Serverutils.recv(context.bob, parse: true)
     )
 
     assert(
       %Message{type: "turn", value: nil, target: nil} == 
-      Serverutils.recv(context.bob, parse: true, timeout: 100)
+      Serverutils.recv(context.bob, parse: true)
     )
 
     # Bob turn
@@ -128,12 +123,12 @@ defmodule ServusTest do
 
     assert(
       %Message{type: "set", value: 3, target: nil} == 
-      Serverutils.recv(context.alice, parse: true, timeout: 100)
+      Serverutils.recv(context.alice, parse: true)
     )
 
     assert(
       %Message{type: "turn", value: nil, target: nil} == 
-      Serverutils.recv(context.alice, parse: true, timeout: 100)
+      Serverutils.recv(context.alice, parse: true)
     )
 
     # Alice turn
@@ -141,12 +136,12 @@ defmodule ServusTest do
 
     assert(
       %Message{type: "win", value: nil, target: nil} == 
-      Serverutils.recv(context.alice, parse: true, timeout: 100)
+      Serverutils.recv(context.alice, parse: true)
     )
 
     assert(
       %Message{type: "loose", value: nil, target: nil} == 
-      Serverutils.recv(context.bob, parse: true, timeout: 100)
+      Serverutils.recv(context.bob, parse: true)
     )
   end
 end

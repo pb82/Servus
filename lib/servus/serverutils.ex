@@ -58,7 +58,7 @@ defmodule Servus.Serverutils.Web do
   client socket)
   """
   def get_address(socket) do
-    Serverutils.TCP.get_address(socket)
+    Servus.Serverutils.TCP.get_address(socket)
   end
 
   @doc """
@@ -71,21 +71,27 @@ defmodule Servus.Serverutils.Web do
       value: value
     }
 
-    Socket.Web.send! socket, {:text, json}
+    Socket.Web.send socket, {:text, json}
   end
 
   @doc """
   Wait for a message on a WebSocket connection. Other than TCP sockets
-  this does not have any options at the moment. Messages will be
-  returned raw.
+  this does not have a `:timeout` option. The `:parse` option however
+  is available.
   """
-  def recv(socket) do
-    result = Socket.Web.recv! socket
+  def recv(socket, opts) do
+    result = Socket.Web.recv socket
+
     case result do
-      {:text, data} ->
-        {:ok, data}
-      {:close, reason, _} ->
-        {:error, reason}
+      {:ok, {:text, data}} ->
+        if opts[:parse] do
+          {:ok, msg} = Poison.decode data, as: Servus.Message
+          msg
+        else
+          {:ok, data}
+        end
+      {:error, reason} ->
+        result
       _ ->
         {:error, :unknown}
     end
@@ -129,30 +135,24 @@ defmodule Servus.Serverutils do
   # ###############################################
 
 
-  # WebSocket
+  # Send / Receive
   # ###############################################
-  def send(%{raw: socket, type: :web}, type, value) do
-    Web.send(socket, type, value)
+  def send(socket, type, value) do
+    case socket.type do
+      :tcp -> TCP.send(socket.raw, type, value)
+      :web -> Web.send(socket.raw, type, value)
+    end
   end
 
-  def recv(%{raw: socket, type: :web}) do
-    Web.recv(socket)
-  end
-  
-  
-  # ###############################################
-  # TCP Socket
-  # ###############################################
-  def send(%{raw: socket, type: :tcp}, type, value) do
-    TCP.send(socket, type, value)
-  end
-
-  def recv(%{raw: socket, type: :tcp}, opts \\ [parse: false, timeout: :infinity]) do
-    TCP.recv(socket, opts)
+  def recv(socket, opts \\ [parse: false, timeout: :infinity]) do
+    case socket.type do
+      :tcp -> TCP.recv(socket.raw, opts)
+      :web -> Web.recv(socket.raw, opts)
+    end
   end
   # ###############################################
 
-  
+
   # Module call
   # ###############################################
   def call(target, type, value) do

@@ -53,7 +53,6 @@ defmodule ConnectFour do
           {:next_state, :win, state}
         else
           #No win yet
-          Logger.debug "Player 2 puts coin in slot #{slot}"
           # Notify the other player about the put...
           Serverutils.send(state.player1.socket, "set", slot)
           
@@ -89,10 +88,9 @@ defmodule ConnectFour do
           {:next_state, :win, state}
         else
           #No win yet
-          Logger.debug "Player 1 puts coin in slot #{slot}"
           # Notify the other player about the put...
           Serverutils.send(state.player2.socket, "set", slot)
-
+          
           # ...and give him the next turn.
           Serverutils.send(state.player2.socket, "turn", nil)
           {:next_state, :p2, state}
