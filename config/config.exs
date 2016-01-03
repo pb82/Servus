@@ -9,7 +9,6 @@ config :servus,
 config :servus,
 connect_four: %{
   adapters: [
-    tcp: 3334,
     web: 3335
   ],
   players_per_game: 2, 

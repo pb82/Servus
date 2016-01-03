@@ -48,6 +48,10 @@ defmodule ConnectFour do
       slot in 0..7 ->
         Gamefield.update_field(state.field, slot, :p2)
         if Gamefield.check_win_condition(state.field) do  
+          # Send the final move to the loosingn player
+          Serverutils.send(state.player1.socket, "set", slot)
+
+          # Game over
           Serverutils.send(state.player2.socket, "win", nil)
           Serverutils.send(state.player1.socket, "loose", nil)
           {:next_state, :win, state}
@@ -83,6 +87,10 @@ defmodule ConnectFour do
       slot in 0..7 ->
         Gamefield.update_field(state.field, slot, :p1)
         if Gamefield.check_win_condition(state.field) do  
+          # Set the final move to the loosing player
+          Serverutils.send(state.player2.socket, "set", slot)
+
+          # Game over
           Serverutils.send(state.player1.socket, "win", nil)
           Serverutils.send(state.player2.socket, "loose", nil)
           {:next_state, :win, state}
@@ -108,6 +116,8 @@ defmodule ConnectFour do
 
   def win({_, "restart", _}, state) do
     Gamefield.reset_game(state.field)
+    Serverutils.send(state.player1.socket, "reset", nil)
+    Serverutils.send(state.player2.socket, "reset", nil)
     Serverutils.send(state.player2.socket, "turn", nil)
     {:next_state, :p2, state}
   end
