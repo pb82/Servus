@@ -145,6 +145,11 @@ defmodule ServusTest do
     )
 
     assert(
+      %Message{type: "set", value: 4, target: nil} == 
+      Serverutils.recv(context.bob, parse: true, timeout: 100)
+    )
+
+    assert(
       %Message{type: "loose", value: nil, target: nil} == 
       Serverutils.recv(context.bob, parse: true, timeout: 100)
     )
