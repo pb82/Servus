@@ -111,14 +111,8 @@ defmodule Servus.Serverutils do
 
   # IDs
   # ###############################################
-  defp now do
-    :os.timestamp
-    |> Tuple.to_list
-    |> Enum.reduce 0, fn (x, acc) -> x + acc end
-  end
-
   def get_unique_id do
-    :crypto.rand_uniform(1, 100) * now
+    :crypto.rand_bytes(4) |> :crypto.bytes_to_integer
   end
   # ###############################################
 

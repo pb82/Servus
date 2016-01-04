@@ -1,7 +1,7 @@
 defmodule Servus.PlayerQueue do
-use GenServer
-require Logger
-alias Servus.PidStore
+  use GenServer
+  require Logger
+  alias Servus.PidStore
 
   @doc """
   Start a new player queue for a backend of type `logic`
