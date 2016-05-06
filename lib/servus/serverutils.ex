@@ -108,6 +108,8 @@ defmodule Servus.Serverutils do
 
   alias Servus.Serverutils.Web
   alias Servus.Serverutils.TCP
+  alias Servus.ModuleStore
+  require Logger
 
   # IDs
   # ###############################################
@@ -149,6 +151,10 @@ defmodule Servus.Serverutils do
 
   # Module call
   # ###############################################
+  @doc """
+  # call
+  Sample Servus.Serverutils.call("hiscore", "put", %{module: _, player: _, score: _}) when "put" is a handlep callback
+  """
   def call(target, type, value) do
     pid = ModuleStore.get(target)
     
