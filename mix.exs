@@ -31,7 +31,8 @@ defmodule Servus.Mixfile do
     [
       {:poison, "~> 1.5.0"},
       {:socket, "~> 0.3.0"},
-      {:exrm, "~> 0.19.0"}
+      {:exrm, "~> 0.19.0"},
+      {:sqlitex, "~> 1.0"}
     ]
   end
 end
