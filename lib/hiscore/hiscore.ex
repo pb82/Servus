@@ -1,4 +1,13 @@
 defmodule HiScore do
+  @moduledoc """
+  
+  # put sample
+  Servus.Serverutils.call("hiscore", "put", %{module: 'sample game', player: 'gamer number one', 1337})
+  # get sample
+  Servus.Serverutils.call("hiscore", "get", %{module: 'sample game', player: 'gamer number one'})
+  # rank sample
+  Servus.Serverutils.call("hiscore", "rank", %{module: 'sample game', limit: 10})
+  """
   use Servus.Module 
   require Logger
 
@@ -27,5 +36,9 @@ defmodule HiScore do
 
   handlep "get", %{module: _, player: _} = args, state do
     Sqlitex.Server.query(state.db, "SELECT score FROM hiscores WHERE module = '#{args.module}' AND player = '#{args.player}'")
+  end
+
+  handlep "rank", %{module: _, limit: _} = args, state do
+    Sqlitex.Server.query(state.db, "SELECT score FROM hiscores WHERE module = '#{args.module}' ORDER BY score DESC LIMIT #{args.limit}")
   end
 end
