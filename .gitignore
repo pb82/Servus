@@ -6,3 +6,4 @@ erl_crash.dump
 rel
 *.swp
 *.sqlite3
+*.DS*

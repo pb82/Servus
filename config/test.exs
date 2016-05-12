@@ -1,4 +1,10 @@
 use Mix.Config
 
 config :logger,
-  level: :error
+  level: :info
+
+config :servus,
+database: %{
+  rootpath: "./db",
+  testmode: "?mode=memory"
+}

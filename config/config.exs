@@ -3,7 +3,7 @@ use Mix.Config
 # Base config
 config :servus,
   backends: [:connect_four],
-  modules: [Echo, HiScore]
+  modules: [Echo, HiScore, Player]
 
 # Configuration for a connect-four game
 config :servus,
@@ -18,7 +18,8 @@ connect_four: %{
 
 config :servus,
 database: %{
-  rootpath: "./db"
+  rootpath: "./db",
+  testmode: ""
 }
 
 import_config "#{Mix.env}.exs"
