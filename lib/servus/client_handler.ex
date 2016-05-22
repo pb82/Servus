@@ -13,7 +13,7 @@ defmodule Servus.ClientHandler do
   def run(state) do
     case Serverutils.recv(state.socket) do
       {:ok, message} ->
-        data = Poison.decode message, as: Servus.Message
+        data = Poison.decode message, as: %Servus.Message{}
         case data do
           {:ok, %{type: "join", value: name}} ->
             # The special `join` message
@@ -78,7 +78,7 @@ defmodule Servus.ClientHandler do
             Logger.warn "Invalid message format: #{message}"
             run(state)
         end
-      {:error, err} ->
+      {:error, _} ->
         # Client has aborted the connection
         # De-register it's ID from the pid store
         if Map.has_key?(state, :player) do

@@ -17,14 +17,6 @@ defmodule Servus.PlayerQueue do
     pid
   end
 
-  @doc """
-  Add a new player to the queue. This is a synchronous call and will
-  return when the player was succesfully added.
-  """
-  def push(pid, player) do
-    GenServer.call(pid, {:push, player})
-  end
-
   def handle_call({:push, player}, _, state) do
     state = %{state | :queue => [player | state.queue]}
 
@@ -44,16 +36,6 @@ defmodule Servus.PlayerQueue do
     end
   end
 
-  @doc """
-  Remove a player from the queue (by it's pid). This function is called when
-  a player that is still in the queue (and thus not in a game) aborts the
-  connection. If we would not remove him at this point he would count as a
-  valid opponent.
-  """
-  def remove(pid, player) do
-    GenServer.call(pid, {:remove, player})
-  end
-
   def handle_call({:remove, player}, _, state) do
     queue = Enum.reduce(state.queue, [], fn(candidate, acc) ->
       if candidate.id == player.id do
@@ -66,5 +48,23 @@ defmodule Servus.PlayerQueue do
     state = %{state | :queue => queue}
 
     {:reply, :ok, state}
+  end
+
+  @doc """
+  Add a new player to the queue. This is a synchronous call and will
+  return when the player was succesfully added.
+  """
+  def push(pid, player) do
+    GenServer.call(pid, {:push, player})
+  end
+
+  @doc """
+  Remove a player from the queue (by it's pid). This function is called when
+  a player that is still in the queue (and thus not in a game) aborts the
+  connection. If we would not remove him at this point he would count as a
+  valid opponent.
+  """
+  def remove(pid, player) do
+    GenServer.call(pid, {:remove, player})
   end
 end

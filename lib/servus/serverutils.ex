@@ -9,7 +9,7 @@ defmodule Servus.Serverutils.TCP do
   """
   def get_address(socket) do
     {:ok, {address, _}} = :inet.peername(socket)
-    address |> Tuple.to_list |> Enum.join "."
+    address |> Tuple.to_list |> Enum.join(".")
   end
 
   @doc """
@@ -37,7 +37,7 @@ defmodule Servus.Serverutils.TCP do
     case result do
       {:ok, data} ->
         if opts[:parse] do
-          {:ok, msg} = Poison.decode data, as: Servus.Message
+          {:ok, msg} = Poison.decode data, as: %Servus.Message{}
           msg
         else
           result
@@ -85,7 +85,7 @@ defmodule Servus.Serverutils.Web do
     case result do
       {:ok, {:text, data}} ->
         if opts[:parse] do
-          {:ok, msg} = Poison.decode data, as: Servus.Message
+          {:ok, msg} = Poison.decode data, as: %Servus.Message{}
           msg
         else
           {:ok, data}
