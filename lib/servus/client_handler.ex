@@ -15,6 +15,7 @@ defmodule Servus.ClientHandler do
       {:ok, message} ->
         data = Poison.decode message, as: Servus.Message
         case data do
+          #OLD USAGE!!
           {:ok, %{type: "join", value: name}} ->
             # The special `join` message
 
@@ -27,7 +28,8 @@ defmodule Servus.ClientHandler do
 
               # Create a new player and add it to the queue
               player = %{
-                name: name, 
+                name: name,
+                registered: false, 
                 socket: state.socket, 
                 id: Serverutils.get_unique_id
               }
@@ -37,43 +39,59 @@ defmodule Servus.ClientHandler do
               # Store the player in the process state
               run(Map.put(state, :player, player))
             end
-          {:ok, %{type: type, target: target, value: value}} ->
-            if target == nil do
-              # Generic message from client (player)
+            {:ok, %{type: "login"}} ->
+              player = %{
+                name: name, 
+                registered: true,
+                socket: state.socket, 
+                id: Serverutils.get_unique_id
+              }
+              # Store the player in the process state
+              run(Map.put(state, :player, player))
+            end
+            {:ok, %{type: "start_random_game"}} ->
+              PlayerQueue.push(state.queue, state.‚player)  
+            end
+            {:ok, %{type: "start_game_with_id", value: value}} ->
+              nil‚
+            end
+            {:ok, %{type: type, target: target, value: value}} ->
+              if target == nil do
+                # Generic message from client (player)
 
-              # Check if the game state machine has already been started
-              # by querying it's pid from the PidStore. This is only
-              # required if it's not already stored in the process state
-              if not Map.has_key?(state, :fsm) do
-                pid = PidStore.get(state.player.id)
+                # Check if the game state machine has already been started
+                # by querying it's pid from the PidStore. This is only
+                # required if it's not already stored in the process state
+                if not Map.has_key?(state, :fsm) do
+                  pid = PidStore.get(state.player.id)
+                  if pid != nil do
+                    state = Map.put(state, :fsm, pid)
+                  end
+                end
+
+                # Try to get the pid of the game state machine and send
+                # the command
+                pid = state.fsm
                 if pid != nil do
-                  state = Map.put(state, :fsm, pid)
+                  :gen_fsm.send_event(pid, {state.player.id, type, value})
+                end
+
+              else
+
+                # Call external module
+                pid = ModuleStore.get(target)
+
+                # Check if the module is registered and available
+                # and if yes...
+                if pid != nil and Process.alive?(pid) do
+                  # ...invoke a synchronous call and send the result back
+                  # to the calles (client socket)
+                  result = GenServer.call(pid, {type, value})
+                  Serverutils.send(state.socket, target, result)
                 end
               end
 
-              # Try to get the pid of the game state machine and send
-              # the command
-              pid = state.fsm
-              if pid != nil do
-                :gen_fsm.send_event(pid, {state.player.id, type, value})
-              end
-
-            else
-
-              # Call external module
-              pid = ModuleStore.get(target)
-
-              # Check if the module is registered and available
-              # and if yes...
-              if pid != nil and Process.alive?(pid) do
-                # ...invoke a synchronous call and send the result back
-                # to the calles (client socket)
-                result = GenServer.call(pid, {type, value})
-                Serverutils.send(state.socket, target, result)
-              end
-            end
-
-            run(state)
+              run(state)
           _ ->
             Logger.warn "Invalid message format: #{message}"
             run(state)
