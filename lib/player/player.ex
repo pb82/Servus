@@ -6,7 +6,8 @@ defmodule Player do
   require Logger
 
   @config Application.get_env(:servus, :database)
-  @db "#{@config.rootpath}/player.sqlite3"
+  @db "file:#{@config.rootpath}/player.sqlite3#{@config.testmode}"
+
 
   register "player"
 
@@ -24,17 +25,25 @@ defmodule Player do
   end
 
   handlep "put", %{nick: _} = args , state do
+    Logger.info "Player module insert_stmt"
     insert_stmt = "INSERT INTO players(nick) VALUES ('#{args.nick}')"
     Sqlitex.Server.exec(state.db, insert_stmt)
   end
 
   handlep "reg_with_facebook", %{facebook_name: _, facebook_token: _, facebook_id: _, facebook_mail: _} = args , state do
+    Logger.info "Player module reg_with_facebook"
     insert_stmt = "INSERT INTO players (nick,facebook_token,facebook_id,facebook_mail) VALUES ('#{args.facebook_name}','#{args.facebook_token}','#{args.facebook_id}','#{args.facebook_mail}')"
     Sqlitex.Server.exec(state.db, insert_stmt)
   end
 
   handlep "select_facebook", %{facebook_id: _} = args , state do
+    Logger.info "Player module select_facebook"
     select_stmt = "Select * FROM players  where facebook_id = '#{args.facebook_id}'"
+    Sqlitex.Server.query(state.db, select_stmt)
+  end
+   handlep "delete_facebook", %{facebook_id: _} = args , state do
+    Logger.info "Player module delete_facebook"
+    select_stmt = "Delete FROM players  where facebook_id = '#{args.facebook_id}'"
     Sqlitex.Server.query(state.db, select_stmt)
   end
 end

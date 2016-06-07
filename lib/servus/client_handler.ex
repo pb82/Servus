@@ -39,7 +39,7 @@ defmodule Servus.ClientHandler do
               # Store the player in the process state
               run(Map.put(state, :player, player))
             end
-            {:ok, %{type: "login"}} ->
+            {:ok, %{type: "login", value: name}} ->
               player = %{
                 name: name, 
                 registered: true,
@@ -48,13 +48,13 @@ defmodule Servus.ClientHandler do
               }
               # Store the player in the process state
               run(Map.put(state, :player, player))
-            end
+            
             {:ok, %{type: "start_random_game"}} ->
-              PlayerQueue.push(state.queue, state.‚player)  
-            end
+              PlayerQueue.push(state.queue, state.player)  
+            
             {:ok, %{type: "start_game_with_id", value: value}} ->
-              nil‚
-            end
+              nil
+            
             {:ok, %{type: type, target: target, value: value}} ->
               if target == nil do
                 # Generic message from client (player)

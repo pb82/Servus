@@ -1,5 +1,4 @@
 defmodule HiScoreTest do
-defmodule HiScoreTest do
   use ExUnit.Case
   alias Servus.Serverutils
   #alias Servus.Message
@@ -10,7 +9,7 @@ defmodule HiScoreTest do
   
   #end
 
-  test "unitest"#, context
+  test "HighscoreDatabase"#, context
    do
     # Alice joins the game by sending the 'join'
     # message
