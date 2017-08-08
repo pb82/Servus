@@ -90,7 +90,7 @@ defmodule Servus.Serverutils.Web do
         else
           {:ok, data}
         end
-      {:error, reason} ->
+      {:error, _reason} ->
         result
       _ ->
         {:error, :unknown}

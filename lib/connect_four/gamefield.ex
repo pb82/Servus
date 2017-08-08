@@ -8,7 +8,7 @@ defmodule Gamefield do
   instances running
   """
   def start_link do
-    GenServer.start_link(__MODULE__, produce_empty_field)
+    GenServer.start_link(__MODULE__, produce_empty_field())
   end
 
   @doc """

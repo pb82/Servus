@@ -5,7 +5,7 @@ defmodule Servus.Mixfile do
     [app: :servus,
      version: "0.0.1",
      elixir: "~> 1.1",
-     deps: deps]
+     deps: deps()]
   end
 
   # Configuration for the OTP application
