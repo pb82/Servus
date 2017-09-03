@@ -90,7 +90,7 @@ defmodule Servus.Serverutils.Web do
         else
           {:ok, data}
         end
-      {:error, reason} ->
+      {:error, _reason} ->
         result
       _ ->
         {:error, :unknown}
@@ -112,7 +112,7 @@ defmodule Servus.Serverutils do
   # IDs
   # ###############################################
   def get_unique_id do
-    :crypto.rand_bytes(4) |> :crypto.bytes_to_integer
+    :crypto.strong_rand_bytes(4) |> :crypto.bytes_to_integer
   end
   # ###############################################
 
