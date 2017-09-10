@@ -7,7 +7,6 @@ defmodule Servus.ClientHandler do
   alias Servus.ModuleStore
   alias Servus.Serverutils
   alias Servus.PlayerQueue
-  alias Servus.Serverutils
   require Logger
 
   def run(state) do
