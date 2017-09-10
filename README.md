@@ -58,8 +58,12 @@ config :servus,
 ```elixir
 config :servus,
   # Configuration for the `connect_four` backend
+  # TCP and WebSocket adapters are supported
   connect_four: %{
-    port: 3334,
+    adapters: [
+      tcp: 3334,
+      web: 3335
+    ],
     players_per_game: 2,
     implementation: ConnectFour
   }
