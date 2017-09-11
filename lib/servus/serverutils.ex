@@ -108,6 +108,7 @@ defmodule Servus.Serverutils do
 
   alias Servus.Serverutils.Web
   alias Servus.Serverutils.TCP
+  alias Servus.ModuleStore
 
   # IDs
   # ###############################################
