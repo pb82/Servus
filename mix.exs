@@ -2,10 +2,7 @@ defmodule Servus.Mixfile do
   use Mix.Project
 
   def project do
-    [app: :servus,
-     version: "0.0.1",
-     elixir: "~> 1.1",
-     deps: deps()]
+    [app: :servus, version: "0.0.1", elixir: "~> 1.10.2", deps: deps()]
   end
 
   # Configuration for the OTP application
@@ -29,8 +26,9 @@ defmodule Servus.Mixfile do
   # Type `mix help deps` for more examples and options
   defp deps do
     [
-      {:poison, "~> 2.1.0"},
-      {:socket, "~> 0.3.4"}
+      {:poison, "~> 4.0"},
+      {:socket, "~> 0.3.13"},
+      {:gen_state_machine, "~> 2.1"}
     ]
   end
 end
