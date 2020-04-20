@@ -11,6 +11,10 @@ defmodule Gamefield do
     GenServer.start_link(__MODULE__, produce_empty_field())
   end
 
+  def init(init_arg) do
+    {:ok, init_arg}
+  end
+
   @doc """
   Reset the game field to empty state
   """
@@ -21,8 +25,8 @@ defmodule Gamefield do
   @doc """
   Put a coin of `playerID` into `slot`
   """
-  def update_field(server,slot,playerID) do
-    GenServer.call(server, {:updateField,slot, playerID})
+  def update_field(server, slot, playerID) do
+    GenServer.call(server, {:updateField, slot, playerID})
   end
 
   @doc """
@@ -38,23 +42,23 @@ defmodule Gamefield do
   # eight arrays. Each of the nested arrays contains eight times the
   # value `nil` (empty state).
   defp produce_empty_field do
-    for _ <- 0..7, do: (for _ <- 0..7, do: nil)
+    for _ <- 0..7, do: for(_ <- 0..7, do: nil)
   end
 
   # Implementation
 
   def handle_cast(:resetGame, _) do
-    {:noreply, produce_empty_field}
+    {:noreply, produce_empty_field()}
   end
 
-  def handle_call({:updateField, slot,playerID}, _, gamefield)do
+  def handle_call({:updateField, slot, playerID}, _, gamefield) do
     column = Enum.at(gamefield, slot)
     newColumn = put_coin(column, playerID, 0)
     newGameField = Listhelp.put_item(gamefield, slot, newColumn)
     {:reply, :ok, newGameField}
   end
 
-  def handle_call(:checkWinCondition,_,gamefield) do
+  def handle_call(:checkWinCondition, _, gamefield) do
     values = [
       gamefield,
       Fieldchecker.rotate(gamefield),
@@ -62,32 +66,35 @@ defmodule Gamefield do
       Fieldchecker.arrow_left(gamefield)
     ]
 
-    status = Enum.reduce values, false, fn (x, acc) ->
-      acc or check_field(x)
-    end
+    status =
+      Enum.reduce(values, false, fn x, acc ->
+        acc or check_field(x)
+      end)
 
     {:reply, status, gamefield}
   end
 
-  
   # Check the game field. If one of the columns contains
-  # a winning condition (four coins of the same type in 
+  # a winning condition (four coins of the same type in
   # a row) then return true.
   defp check_field(field) do
-    values = Enum.map(field, fn(column) ->
-      case Fieldchecker.count(column) do
-        {_, 4} ->
-          true
-        _ ->
-          false
-      end
-    end)
+    values =
+      Enum.map(field, fn column ->
+        case Fieldchecker.count(column) do
+          {_, 4} ->
+            true
 
-    Enum.reduce(values, false, fn (x, acc) -> x or acc end)
+          _ ->
+            false
+        end
+      end)
+
+    Enum.reduce(values, false, fn x, acc -> x or acc end)
   end
 
   # Put a coin of `player` in `column`
   defp put_coin(column, _, level) when level > 7, do: column
+
   defp put_coin(column, player, level) do
     if Enum.at(column, level) == nil do
       Listhelp.put_item(column, level, player)

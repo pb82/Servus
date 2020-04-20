@@ -5,3 +5,4 @@ erl_crash.dump
 *.lock
 rel
 *.swp
+.elixir_ls

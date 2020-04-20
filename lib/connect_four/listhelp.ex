@@ -3,14 +3,14 @@ defmodule Listhelp do
     result
   end
 
-  defp put_item([h|t], result, index, cindex, item) do
+  defp put_item([h | t], result, index, cindex, item) do
     if index == cindex do
       put_item(t, [item | result], index, cindex + 1, item)
     else
       put_item(t, [h | result], index, cindex + 1, item)
     end
   end
-  
+
   def put_item(list, index, item) do
     Enum.reverse(put_item(list, [], index, 0, item))
   end
@@ -25,13 +25,13 @@ defmodule Fieldchecker do
     {last, 4}
   end
 
-  defp count([nil|t], last, result) do
+  defp count([nil | t], last, _result) do
     count(t, last, 0)
   end
 
-  defp count([h|t], last, result) do
+  defp count([h | t], last, result) do
     if h == last do
-      count(t, last, result + 1) 
+      count(t, last, result + 1)
     else
       count(t, h, 1)
     end
@@ -64,16 +64,17 @@ defmodule Fieldchecker do
       [h7, g7, f7, e7, d7, c7, b7, a7]
     ]
   end
+
   def arrow_right(field) do
     [
-      [ _,  _,  _, a3, a4, a5, a6, a7],
-      [ _,  _, b2, b3, b4, b5, b6, b7],
-      [ _, c1, c2, c3, c4, c5, c6, c7],
+      [_, _, _, a3, a4, a5, a6, a7],
+      [_, _, b2, b3, b4, b5, b6, b7],
+      [_, c1, c2, c3, c4, c5, c6, c7],
       [d0, d1, d2, d3, d4, d5, d6, d7],
       [e0, e1, e2, e3, e4, e5, e6, e7],
-      [f0, f1, f2, f3, f4, f5, f6,  _],
-      [g0, g1, g2, g3, g4, g5,  _,  _],
-      [h0, h1, h2, h3, h4,  _,  _,  _]
+      [f0, f1, f2, f3, f4, f5, f6, _],
+      [g0, g1, g2, g3, g4, g5, _, _],
+      [h0, h1, h2, h3, h4, _, _, _]
     ] = field
 
     [
@@ -91,26 +92,26 @@ defmodule Fieldchecker do
 
   def arrow_left(field) do
     [
-      [a0, a1, a2, a3, a4,  _,  _,  _],
-      [b0, b1, b2, b3, b4, b5,  _,  _],
-      [c0, c1, c2, c3, c4, c5, c6,  _],
+      [a0, a1, a2, a3, a4, _, _, _],
+      [b0, b1, b2, b3, b4, b5, _, _],
+      [c0, c1, c2, c3, c4, c5, c6, _],
       [d0, d1, d2, d3, d4, d5, d6, d7],
       [e0, e1, e2, e3, e4, e5, e6, e7],
-      [ _, f1, f2, f3, f4, f5, f6, f7],
-      [ _,  _, g2, g3, g4, g5, g6, g7],
-      [ _,  _,  _, h3, h4, h5, h6, h7]
+      [_, f1, f2, f3, f4, f5, f6, f7],
+      [_, _, g2, g3, g4, g5, g6, g7],
+      [_, _, _, h3, h4, h5, h6, h7]
     ] = field
 
     [
-                      [a4, b5, c6, d7],
-                  [a3, b4, c5, d6, e7],
-              [a2, b3, c4, d5, e6, f7],
-          [a1, b2, c3, d4, e5, f6, g7],
+      [a4, b5, c6, d7],
+      [a3, b4, c5, d6, e7],
+      [a2, b3, c4, d5, e6, f7],
+      [a1, b2, c3, d4, e5, f6, g7],
       [a0, b1, c2, d3, e4, f5, g6, h7],
-          [b0, c1, d2, e3, f4, g5, h6],
-              [c0, d1, e2, f3, g4, h5],
-                  [d0, e1, f2, g3, h4],
-                      [e0, f1, g2, h3]
+      [b0, c1, d2, e3, f4, g5, h6],
+      [c0, d1, e2, f3, g4, h5],
+      [d0, e1, f2, g3, h4],
+      [e0, f1, g2, h3]
     ]
   end
 end
