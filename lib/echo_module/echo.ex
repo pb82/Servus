@@ -1,16 +1,17 @@
 defmodule Echo do
-  use Servus.Module 
+  use Servus.Module
   require Logger
 
-  register "echo"
+  register("echo")
 
-  def startup do
-    Logger.info "Echo module registered"
-    [] # Return aodule state here
+  def startup() do
+    Logger.info("Echo module registered")
+    # Return aodule state here
+    []
   end
 
   handle "echo", args, state do
-    Logger.info "Echo module called"
+    Logger.info("Echo module called")
     args
   end
 end

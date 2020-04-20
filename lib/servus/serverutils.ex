@@ -1,4 +1,6 @@
 defmodule Servus.Serverutils.TCP do
+  require IO
+
   @moduledoc """
   Implementation of send/3 and recv/2 for TCP sockets
   """
@@ -9,7 +11,7 @@ defmodule Servus.Serverutils.TCP do
   """
   def get_address(socket) do
     {:ok, {address, _}} = :inet.peername(socket)
-    address |> Tuple.to_list |> Enum.join(".")
+    address |> Tuple.to_list() |> Enum.join(".")
   end
 
   @doc """
@@ -17,12 +19,14 @@ defmodule Servus.Serverutils.TCP do
   the form `{"type": type,"value": value}`
   """
   def send(socket, type, value) do
-    {:ok, json} = Poison.encode %{
-      type: type,
-      value: value
-    }
+    {:ok, json} =
+      Poison.encode(%{
+        type: type,
+        value: value,
+        target: nil
+      })
 
-    :gen_tcp.send socket, json
+    :gen_tcp.send(socket, json)
   end
 
   @doc """
@@ -34,14 +38,16 @@ defmodule Servus.Serverutils.TCP do
   """
   def recv(socket, opts) do
     result = :gen_tcp.recv(socket, 0, opts[:timeout])
+
     case result do
       {:ok, data} ->
         if opts[:parse] do
-          {:ok, msg} = Poison.decode data, as: %Servus.Message{}
+          {:ok, msg} = Poison.decode(data, as: %Servus.Message{})
           msg
         else
           result
         end
+
       _ ->
         result
     end
@@ -66,12 +72,13 @@ defmodule Servus.Serverutils.Web do
   the form `{"type": type,"value": value}`
   """
   def send(socket, type, value) do
-    {:ok, json} = Poison.encode %{
-      type: type,
-      value: value
-    }
+    {:ok, json} =
+      Poison.encode(%{
+        type: type,
+        value: value
+      })
 
-    Socket.Web.send socket, {:text, json}
+    Socket.Web.send(socket, {:text, json})
   end
 
   @doc """
@@ -80,18 +87,20 @@ defmodule Servus.Serverutils.Web do
   is available.
   """
   def recv(socket, opts) do
-    result = Socket.Web.recv socket
+    result = Socket.Web.recv(socket)
 
     case result do
       {:ok, {:text, data}} ->
         if opts[:parse] do
-          {:ok, msg} = Poison.decode data, as: %Servus.Message{}
+          {:ok, msg} = Poison.decode(data, as: %Servus.Message{})
           msg
         else
           {:ok, data}
         end
+
       {:error, _reason} ->
         result
+
       _ ->
         {:error, :unknown}
     end
@@ -113,10 +122,10 @@ defmodule Servus.Serverutils do
   # IDs
   # ###############################################
   def get_unique_id do
-    :crypto.strong_rand_bytes(4) |> :crypto.bytes_to_integer
+    :crypto.strong_rand_bytes(4) |> :crypto.bytes_to_integer()
   end
-  # ###############################################
 
+  # ###############################################
 
   # Addresses
   # ###############################################
@@ -127,8 +136,8 @@ defmodule Servus.Serverutils do
   def get_address(socket) do
     TCP.get_address(socket)
   end
-  # ###############################################
 
+  # ###############################################
 
   # Send / Receive
   # ###############################################
@@ -145,19 +154,20 @@ defmodule Servus.Serverutils do
       :web -> Web.recv(socket.raw, opts)
     end
   end
-  # ###############################################
 
+  # ###############################################
 
   # Module call
   # ###############################################
   def call(target, type, value) do
     pid = ModuleStore.get(target)
-    
+
     if pid != nil and Process.alive?(pid) do
       GenServer.call(pid, {:priv, type, value})
     else
       :error
     end
   end
+
   # ###############################################
 end

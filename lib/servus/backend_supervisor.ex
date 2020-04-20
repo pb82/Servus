@@ -10,9 +10,10 @@ defmodule Servus.Backend.Supervisor do
   def start_link(adapters, queue_pid) do
     import Supervisor.Spec
 
-    children = Enum.map(adapters, fn {type, port} ->
-      worker(adapter_for(type), [port, queue_pid])
-    end)
+    children =
+      Enum.map(adapters, fn {type, port} ->
+        worker(adapter_for(type), [port, queue_pid])
+      end)
 
     Supervisor.start_link(children, strategy: :one_for_one)
   end

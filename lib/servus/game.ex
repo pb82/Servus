@@ -5,8 +5,10 @@ defmodule Servus.Game do
   """
   defmacro __using__(_) do
     quote do
+      use GenStateMachine
+
       def start(players) do
-        {:ok, pid} = :gen_fsm.start(__MODULE__, players, [])
+        {:ok, pid} = GenStateMachine.start(__MODULE__, players, [])
         pid
       end
 
@@ -14,7 +16,7 @@ defmodule Servus.Game do
       Forward all abort events (player aborts connection) to the
       appropriate handler function (abort).
       """
-      def handle_event({:abort, player}, _, state) do
+      def handle_event(:cast, {:abort, player}, _, state) do
         abort(player, state)
       end
 
@@ -32,10 +34,11 @@ defmodule Servus.Game do
       """
       def abort(player, state) do
         # Default: stop game state machine on connection abort
+        # :gem_statem.close(self)
         {:stop, :shutdown, state}
       end
 
-      defoverridable [abort: 2]
-   end
+      defoverridable abort: 2
+    end
   end
 end

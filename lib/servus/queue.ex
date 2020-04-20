@@ -3,16 +3,21 @@ defmodule Servus.PlayerQueue do
   require Logger
   alias Servus.PidStore
 
+  def init(init_arg) do
+    {:ok, init_arg}
+  end
+
   @doc """
   Start a new player queue for a backend of type `logic`
   allowing `players_per_game` players.
   """
   def start_link(players_per_game, logic) do
-    {:ok, pid} = GenServer.start_link(__MODULE__, %{
-      queue: [], 
-      size: players_per_game,
-      logic: logic
-    })
+    {:ok, pid} =
+      GenServer.start_link(__MODULE__, %{
+        queue: [],
+        size: players_per_game,
+        logic: logic
+      })
 
     pid
   end
@@ -22,28 +27,30 @@ defmodule Servus.PlayerQueue do
 
     cond do
       state.size == length(state.queue) ->
-        pid = state.logic.start state.queue
+        pid = state.logic.start(state.queue)
 
         Enum.each(state.queue, fn player ->
           PidStore.put(player.id, pid)
         end)
 
-        Logger.info "Started a new #{state.logic} with #{state.size} players"
+        Logger.info("Started a new #{state.logic} with #{state.size} players")
 
         {:reply, :ok, %{state | :queue => []}}
+
       true ->
         {:reply, :ok, state}
     end
   end
 
   def handle_call({:remove, player}, _, state) do
-    queue = Enum.reduce(state.queue, [], fn(candidate, acc) ->
-      if candidate.id == player.id do
-        acc
-      else
-        [candidate | acc]
-      end
-    end)
+    queue =
+      Enum.reduce(state.queue, [], fn candidate, acc ->
+        if candidate.id == player.id do
+          acc
+        else
+          [candidate | acc]
+        end
+      end)
 
     state = %{state | :queue => queue}
 

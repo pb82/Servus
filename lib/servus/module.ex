@@ -11,10 +11,10 @@ defmodule Servus.Module do
       def start_link(args) do
         GenServer.start_link(__MODULE__, [], args)
       end
-  
+
       def init(args) do
-        __register__
-        {:ok, startup}
+        __register__()
+        {:ok, startup()}
       end
 
       def terminate(reason, state) do
@@ -26,7 +26,7 @@ defmodule Servus.Module do
       # Callbacks
       # ###############
 
-      def startup do
+      def startup() do
         # Override in user code
         []
       end
@@ -35,18 +35,18 @@ defmodule Servus.Module do
         # Override in user code
       end
 
-      def __register__ do
+      def __register__() do
         # Override or die
         raise "Did you forget to register module  #{__MODULE__}?"
       end
 
-      defoverridable [__register__: 0, startup: 0, shutdown: 1]
+      defoverridable __register__: 0, startup: 0, shutdown: 1
     end
   end
 
   defmacro register(name) do
     quote do
-      def __register__ do
+      def __register__() do
         Servus.ModuleStore.register(unquote(name), self())
       end
     end
@@ -59,17 +59,18 @@ defmodule Servus.Module do
   """
   defmacro handle(action, args, state, handler) do
     handler_impl = Keyword.get(handler, :do, nil)
- 
+
     # Normalize state
     # (let the user ignore the state with _ if he wants)
-    state = case state do
-      {:_, a, b} -> {:state, a, b}
-      _ -> state
-    end
+    state =
+      case state do
+        {:_, a, b} -> {:state, a, b}
+        _ -> state
+      end
 
     quote do
       def handle_call({unquote(action), unquote(args)}, _from, unquote(state)) do
-        result = (unquote(handler_impl))
+        result = unquote(handler_impl)
         {:reply, result, unquote(state)}
       end
     end
@@ -84,17 +85,18 @@ defmodule Servus.Module do
   """
   defmacro handlep(action, args, state, handler) do
     handler_impl = Keyword.get(handler, :do, nil)
- 
+
     # Normalize state
     # (let the user ignore the state with _ if he wants)
-    state = case state do
-      {:_, a, b} -> {:state, a, b}
-      _ -> state
-    end
+    state =
+      case state do
+        {:_, a, b} -> {:state, a, b}
+        _ -> state
+      end
 
     quote do
       def handle_call({:priv, unquote(action), unquote(args)}, _from, unquote(state)) do
-        result = (unquote(handler_impl))
+        result = unquote(handler_impl)
         {:reply, result, unquote(state)}
       end
     end
